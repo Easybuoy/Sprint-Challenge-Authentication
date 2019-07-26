@@ -1,30 +1,83 @@
 const axios = require("axios");
+const bcrypt = require("bcryptjs");
 
 const { authenticate } = require("../auth/authenticate");
-const Users = require('../models/users')
+const  {} =  require('../middlewares/index')
+const Users = require("../models/users");
 module.exports = server => {
   server.post("/api/register", register);
   server.post("/api/login", login);
   server.get("/api/jokes", authenticate, getJokes);
 };
 
-function register(req, res) {
+async function register(req, res) {
   // implement user registration
-  const { username, password } = req.body;
+  try {
+    let { username, password } = req.body;
 
-  console.log(username, password);
-  if (!username && !password) {
-    return res
-      .status(400)
-      .json({
+    if (!username && !password) {
+      return res.status(400).json({
         status: "error",
         message: "Username and Password fields are required"
       });
+    }
+    const existingUser = await Users.getByUsername(username);
+    console.log(existingUser);
+    if (existingUser.length > 0) {
+      return res
+        .status(409)
+        .json({ status: "error", message: "Username already taken" });
+    }
+
+    password = String(password);
+    let hashedPassword = bcrypt.hashSync(password, 12);
+
+    const newUser = await Users.insert({ username, password: hashedPassword });
+
+    if (newUser) {
+      return res
+        .status(201)
+        .json({ status: "success", message: "User created successfully" });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: "error", message: "Unable to create user" });
   }
 }
 
-function login(req, res) {
+async function login(req, res) {
   // implement user login
+  try {
+    const { username, password } = req.body;
+    const existingUser = await Users.getByUsername(username);
+    console.log(existingUser);
+    if (existingUser.length === 0) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "User not found" });
+    }
+
+    const isValidPassword = bcrypt.compareSync(
+      password,
+      existingUser[0].password
+    );
+    if (isValidPassword === true) {
+      const token = generateToken({ id: existingUser[0].id });
+      return res.json({
+        status: "success",
+        message: `Welcome ${existingUser[0].username}, login successful`,
+        token
+      });
+    }
+    return res
+      .status(401)
+      .json({ status: "error", message: "Invalid password" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: "error", message: "Unable to login user" });
+  }
 }
 
 function getJokes(req, res) {
