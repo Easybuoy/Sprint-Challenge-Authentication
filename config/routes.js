@@ -50,7 +50,6 @@ async function login(req, res) {
   // implement user login
   try {
     let { username, password } = req.body;
-    console.log(username, password);
     const existingUser = await Users.getByUsername(username);
 
     if (existingUser.length === 0) {

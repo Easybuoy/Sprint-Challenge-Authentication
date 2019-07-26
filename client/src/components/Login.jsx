@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 export default class Login extends Component {
   state = { username: "", password: "", isLoggedIn: false };
@@ -34,23 +35,28 @@ export default class Login extends Component {
     }
 
     return (
-      <form onSubmit={this.onSubmit}>
-        <input
-          placeholder="Username"
-          type="text"
-          onChange={this.onChange}
-          name="username"
-          required
-        />
-        <input
-          placeholder="Password"
-          type="password"
-          name="password"
-          onChange={this.onChange}
-          required
-        />
-        <button>Login</button>
-      </form>
+      <div className="container">
+        <form onSubmit={this.onSubmit}>
+          <input
+            placeholder="Username"
+            type="text"
+            onChange={this.onChange}
+            name="username"
+            required
+          />
+          <input
+            placeholder="Password"
+            type="password"
+            name="password"
+            onChange={this.onChange}
+            required
+          />
+          <button>Login</button>
+          <p>
+            Don't have an account yet? <Link to="/register">Register</Link>
+          </p>
+        </form>
+      </div>
     );
   }
 }
