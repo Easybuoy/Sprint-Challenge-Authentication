@@ -2,7 +2,7 @@ const axios = require("axios");
 const bcrypt = require("bcryptjs");
 
 const { authenticate } = require("../auth/authenticate");
-const  {} =  require('../middlewares/index')
+const { generateToken } = require("../middlewares/index");
 const Users = require("../models/users");
 module.exports = server => {
   server.post("/api/register", register);
@@ -49,7 +49,7 @@ async function register(req, res) {
 async function login(req, res) {
   // implement user login
   try {
-    const { username, password } = req.body;
+    let { username, password } = req.body;
     const existingUser = await Users.getByUsername(username);
     console.log(existingUser);
     if (existingUser.length === 0) {
@@ -57,7 +57,7 @@ async function login(req, res) {
         .status(404)
         .json({ status: "error", message: "User not found" });
     }
-
+    password = String(password);
     const isValidPassword = bcrypt.compareSync(
       password,
       existingUser[0].password
@@ -74,6 +74,7 @@ async function login(req, res) {
       .status(401)
       .json({ status: "error", message: "Invalid password" });
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json({ status: "error", message: "Unable to login user" });
