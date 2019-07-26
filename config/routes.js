@@ -50,6 +50,7 @@ async function login(req, res) {
   // implement user login
   try {
     let { username, password } = req.body;
+    console.log(username, password);
     const existingUser = await Users.getByUsername(username);
 
     if (existingUser.length === 0) {
@@ -74,6 +75,7 @@ async function login(req, res) {
       .status(401)
       .json({ status: "error", message: "Invalid password" });
   } catch (error) {
+    // console.log(error);
     return res
       .status(500)
       .json({ status: "error", message: "Unable to login user" });
