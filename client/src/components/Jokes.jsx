@@ -6,7 +6,6 @@ export default class Jokes extends Component {
 
   componentDidMount() {
     const token = localStorage.getItem("token");
-    console.log(token);
     if (!token) {
       this.props.history.push("/register");
     }
